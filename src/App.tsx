@@ -6,7 +6,9 @@ import { TodoList } from './components/TodoList';
 import { Todo } from './api/types';
 
 const initialTodos: Todo[] = todosFromServer.map(todo => {
-  const user = usersFromServer.find(u => u.id === todo.userId)!;
+  const user = usersFromServer.find(
+    currentUser => currentUser.id === todo.userId,
+  )!;
 
   return {
     ...todo,
@@ -28,12 +30,12 @@ export const App = () => {
     let hasError = false;
 
     if (!title) {
-      setTitleError('Title is required');
+      setTitleError('Please enter a title');
       hasError = true;
     }
 
     if (!userId) {
-      setUserIdError('User is required');
+      setUserIdError('Please choose a user');
       hasError = true;
     }
 
@@ -41,7 +43,9 @@ export const App = () => {
       return;
     }
 
-    const user = usersFromServer.find(u => u.id === userId)!;
+    const user = usersFromServer.find(
+      currentUser => currentUser.id === userId,
+    )!;
 
     const newTodo: Todo = {
       id: Math.max(...todos.map(todo => todo.id)) + 1,
@@ -53,7 +57,6 @@ export const App = () => {
 
     setTodos(prev => [...prev, newTodo]);
 
-    // очистка форми
     setTitle('');
     setUserId(0);
     setTitleError('');
@@ -66,20 +69,27 @@ export const App = () => {
 
       <form onSubmit={handleSubmit}>
         <div className="field">
+          <label htmlFor="title-input">Title</label>
           <input
+            id="title-input"
             type="text"
             value={title}
+            placeholder="Enter todo title"
+            data-cy="titleInput"
             onChange={event => {
               setTitle(event.target.value);
               setTitleError('');
             }}
           />
-          {titleError && <span className="error">Please enter a title</span>}
+          {titleError && <span className="error">{titleError}</span>}
         </div>
 
         <div className="field">
+          <label htmlFor="user-select">User</label>
           <select
+            id="user-select"
             value={userId}
+            data-cy="userSelect"
             onChange={event => {
               setUserId(+event.target.value);
               setUserIdError('');
@@ -96,7 +106,7 @@ export const App = () => {
             ))}
           </select>
 
-          {userIdError && <span className="error">Please choose a user</span>}
+          {userIdError && <span className="error">{userIdError}</span>}
         </div>
 
         <button type="submit" data-cy="submitButton">
